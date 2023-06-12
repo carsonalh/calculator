@@ -14,7 +14,11 @@ class MainActivity : ComponentActivity() {
         setContentView(R.layout.calculator)
 
         display = findViewById(R.id.display)
+        display.text = calculator.display
 
+        val buttonClear = findViewById<Button>(R.id.button_c)
+        val buttonClearEntry = findViewById<Button>(R.id.button_clear_entry)
+        val buttonDelete = findViewById<Button>(R.id.button_delete)
         val button0 = findViewById<Button>(R.id.button_0)
         val button1 = findViewById<Button>(R.id.button_1)
         val button2 = findViewById<Button>(R.id.button_2)
@@ -32,6 +36,9 @@ class MainActivity : ComponentActivity() {
         val buttonDecimal = findViewById<Button>(R.id.button_decimal)
         val buttonEqual = findViewById<Button>(R.id.button_equal)
 
+        buttonClear.setOnClickListener { calculator.inputClear(); updateDisplay() }
+        buttonClearEntry.setOnClickListener { calculator.inputClearEntry(); updateDisplay() }
+        buttonDelete.setOnClickListener { calculator.inputDelete(); updateDisplay() }
         button0.setOnClickListener { calculator.inputDigit(0); updateDisplay() }
         buttonDecimal.setOnClickListener { calculator.inputDecimal(); updateDisplay() }
         buttonEqual.setOnClickListener { calculator.inputEqual(); updateDisplay() }

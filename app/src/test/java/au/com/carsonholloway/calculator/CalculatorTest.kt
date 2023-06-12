@@ -27,6 +27,30 @@ class CalculatorTest {
     }
 
     @Test
+    fun `delete last typed input`() {
+        calculator.enterSequence("12.834DDDD")
+        assertEquals("12", calculator.display)
+    }
+
+    @Test
+    fun `delete end of input`() {
+        calculator.enterSequence("123DDD")
+        assertEquals("0", calculator.display)
+    }
+
+    @Test
+    fun `clear current entry`() {
+        calculator.enterSequence("15+35628756E15=")
+        assertNumericEquivalent("30", calculator.display)
+    }
+
+    @Test
+    fun `clear clears constant`() {
+        calculator.enterSequence("2*=====C10=")
+        assertNumericEquivalent("10", calculator.display)
+    }
+
+    @Test
     fun `one plus one`() {
         calculator.enterSequence("1+1=")
         assertNumericEquivalent("2", calculator.display)
@@ -131,6 +155,9 @@ class CalculatorTest {
                 '*' -> this.inputMultiply()
                 '/' -> this.inputDivide()
                 '=' -> this.inputEqual()
+                'D' -> this.inputDelete()
+                'C' -> this.inputClear()
+                'E' -> this.inputClearEntry()
                 else -> throw IllegalArgumentException("unexpected sequence char $c")
             }
         }

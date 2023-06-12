@@ -132,6 +132,30 @@ class Calculator {
         logRegisters("input")
     }
 
+    fun inputClear() {
+        input.clear()
+        result = null
+        constant = null
+        first = 0.0
+        operator = Operator.NONE
+        state = State.INPUT_FIRST_START
+    }
+
+    fun inputClearEntry() {
+        input.clear()
+
+        state = when (state) {
+            State.INPUT_FIRST, State.INPUT_FIRST_START -> State.INPUT_FIRST
+            State.INPUT_SECOND, State.INPUT_SECOND_START -> State.INPUT_SECOND
+            State.INPUT_NEW, State.INPUT_NEW_START -> State.INPUT_NEW
+            State.SHOW_ANSWER -> State.INPUT_NEW
+        }
+    }
+
+    fun inputDelete() {
+        input.deleteLast()
+    }
+
     fun inputAdd() {
         inputOperator(Operator.ADD)
 
@@ -166,12 +190,12 @@ class Calculator {
                 }
             }
             State.INPUT_SECOND_START -> {
-                constant = if (operator == Operator.MULTIPLY) first else input.toDouble()
+                constant = first
 
                 when (operator) {
                     Operator.NONE -> throw IllegalStateException()
-                    Operator.DIVIDE -> operator.calculate(1.0, input.toDouble())
-                    else -> operator.calculate(first, input.toDouble())
+                    Operator.DIVIDE -> operator.calculate(1.0, first)
+                    else -> operator.calculate(first, first)
                 }
             }
             State.INPUT_SECOND -> {
@@ -186,7 +210,7 @@ class Calculator {
                 if (constant != null) {
                     operator.calculateConstant(constant!!, input.toDouble())
                 } else {
-                    throw IllegalStateException("unhandled constant is null")
+                    input.toDouble()
                 }
             }
             State.INPUT_NEW_START,
@@ -307,6 +331,14 @@ private class InputDecimal() {
         if (!string.contains('.')) {
             string += '.'
         }
+    }
+
+    fun deleteLast() {
+        if (string.isEmpty()) {
+            throw IllegalStateException()
+        }
+
+        string = if (string.length - 1 == 0) "0" else string.substring(0, string.length - 1)
     }
 
     fun toDouble(): Double = string.toDouble()
