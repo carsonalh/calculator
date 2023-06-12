@@ -39,98 +39,116 @@ class CalculatorTest {
     }
 
     @Test
+    fun `delete past end`() {
+        calculator.enterSequence("12DDDDDD")
+        assertEquals("0", calculator.display)
+    }
+
+    @Test
     fun `clear current entry`() {
         calculator.enterSequence("15+35628756E15=")
-        assertNumericEquivalent("30", calculator.display)
+        assertNumericEquivalent(30.0, calculator.display)
     }
 
     @Test
     fun `clear clears constant`() {
         calculator.enterSequence("2*=====C10=")
-        assertNumericEquivalent("10", calculator.display)
+        assertNumericEquivalent(10.0, calculator.display)
     }
 
     @Test
     fun `one plus one`() {
         calculator.enterSequence("1+1=")
-        assertNumericEquivalent("2", calculator.display)
+        assertNumericEquivalent(2.0, calculator.display)
     }
 
     @Test
     fun `add repeatedly`() {
         calculator.enterSequence("1+1=")
-        assertNumericEquivalent("2", calculator.display)
+        assertNumericEquivalent(2.0, calculator.display)
 
         calculator.inputEqual()
-        assertNumericEquivalent("3", calculator.display)
+        assertNumericEquivalent(3.0, calculator.display)
 
         calculator.inputEqual()
-        assertNumericEquivalent("4", calculator.display)
+        assertNumericEquivalent(4.0, calculator.display)
+    }
+
+    @Test
+    fun `powers of two`() {
+        calculator.enterSequence("2*=")
+        assertNumericEquivalent(4.0, calculator.display)
+
+        calculator.inputEqual()
+        assertNumericEquivalent(8.0, calculator.display)
+
+        calculator.inputEqual()
+        assertNumericEquivalent(16.0, calculator.display)
+
+        calculator.inputEqual()
+        assertNumericEquivalent(32.0, calculator.display)
     }
 
     @Test
     fun `multiply several elements before equal`() {
         calculator.enterSequence("3*4*6=")
-        assertNumericEquivalent("72", calculator.display)
+        assertNumericEquivalent(72.0, calculator.display)
     }
 
     @Test
     fun `multiply floats`() {
         calculator.enterSequence("2.5*2.5=")
-        assertNumericEquivalent("6.25", calculator.display)
+        assertNumericEquivalent(6.25, calculator.display)
     }
 
     @Test
     fun `large numbers`() {
         calculator.enterSequence("101.5*101.25=")
-
-        assertNumericEquivalent("10,276.875", calculator.display)
+        assertNumericEquivalent(10_276.875, calculator.display)
     }
 
     @Test
     fun `set the constant multiply`() {
         calculator.enterSequence("2*3=4=")
-
-        assertNumericEquivalent("8", calculator.display)
+        assertNumericEquivalent(8.0, calculator.display)
     }
 
     @Test
     fun `multiple operations`() {
         calculator.enterSequence("8/2*3=")
-
-        assertNumericEquivalent("12", calculator.display)
+        assertNumericEquivalent(12.0, calculator.display)
     }
 
     @Test
     fun `compute reciprocal`() {
         calculator.enterSequence("4/=")
 
-        assertNumericEquivalent("0.25", calculator.display)
+        assertNumericEquivalent(0.25, calculator.display)
     }
 
     @Test
     fun `new equation does not show old values`() {
         calculator.enterSequence("1+2=5*")
-        assertNumericEquivalent("5", calculator.display)
+        assertNumericEquivalent(5.0, calculator.display)
     }
 
     @Test
     fun `add to answer`() {
         calculator.enterSequence("6*4=+1=")
-        assertNumericEquivalent("25", calculator.display)
+        assertNumericEquivalent(25.0, calculator.display)
     }
 
     @Test
     fun `equals initially does nothing`() {
         calculator.enterSequence("10=")
-        assertNumericEquivalent("10", calculator.display)
+        assertNumericEquivalent(10.0, calculator.display)
     }
 
-    private fun assertNumericEquivalent(expected: String, actual: String) {
+    private fun assertNumericEquivalent(value: Double, actual: String) {
         val delta = 0.001
         val numberFormat = NumberFormat.getNumberInstance(Locale.US)
         assertEquals(
-            numberFormat.parse(expected)!!.toDouble(),
+            value,
             numberFormat.parse(actual)!!.toDouble(),
             delta
         )

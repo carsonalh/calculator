@@ -33,39 +33,28 @@ class Calculator {
     }
 
     private enum class State {
-        // INPUT_*_START states are for when an input is awaited for but something else is being
-        // displayed on the screen.  Typing in a decimal place or digit will override what's on the
-        // screen and move to the corresponding INPUT_* state.
-
-        INPUT_FIRST_START,
-        /**Receiving the first input for a new equation. */
-        INPUT_FIRST,
-        INPUT_SECOND_START,
-        /**Receiving the second input for an equation. */
-        INPUT_SECOND,
-        INPUT_NEW_START,
-        /**Receiving input immediately after an equation. */
-        INPUT_NEW,
-        /**Showing the output of an equation to the display. */
-        SHOW_ANSWER,
+        /**About to edit the first input of the equation; displaying the value of "first." */
+        FIRST_FROZEN,
+        /**Editing the first input of the equation. */
+        FIRST_EDIT,
+        /**About to edit the second input of the equation; displaying the value of "first." */
+        SECOND_FROZEN,
+        /**Editing the second input of the equation. */
+        SECOND_EDIT,
     }
 
     private var first: Double = 0.0
-    private var result: Double? = null
     private var constant: Double? = null
-    private var state: State = State.INPUT_FIRST_START
+    private var state: State = State.FIRST_FROZEN
     private var operator: Operator = Operator.NONE
     private var input: InputDecimal = InputDecimal()
 
     val display: String
         get() = when (state) {
-            State.INPUT_FIRST_START,
-            State.INPUT_SECOND_START -> displayDouble(first)
-            State.INPUT_FIRST,
-            State.INPUT_SECOND,
-            State.INPUT_NEW -> input.toString()
-            State.SHOW_ANSWER,
-            State.INPUT_NEW_START -> displayDouble(result!!)
+            State.FIRST_FROZEN,
+            State.SECOND_FROZEN -> displayDouble(first)
+            State.FIRST_EDIT,
+            State.SECOND_EDIT -> input.toString()
         }
 
     fun inputDigit(digit: Int) {
@@ -74,29 +63,18 @@ class Calculator {
         }
 
         when (state) {
-            State.INPUT_FIRST_START -> {
+            State.FIRST_FROZEN -> {
                 input.clear()
                 input.appendDigit(digit)
-                state = State.INPUT_FIRST
+                state = State.FIRST_EDIT
             }
-            State.INPUT_SECOND_START -> {
+            State.SECOND_FROZEN -> {
                 input.clear()
                 input.appendDigit(digit)
-                state = State.INPUT_SECOND
+                state = State.SECOND_EDIT
             }
-            State.INPUT_NEW_START -> {
-                input.clear()
-                input.appendDigit(digit)
-                state = State.INPUT_NEW
-            }
-            State.INPUT_FIRST,
-            State.INPUT_SECOND,
-            State.INPUT_NEW -> input.appendDigit(digit)
-            State.SHOW_ANSWER -> {
-                input.clear()
-                input.appendDigit(digit)
-                state = State.INPUT_NEW
-            }
+            State.FIRST_EDIT,
+            State.SECOND_EDIT -> input.appendDigit(digit)
         }
 
         logRegisters("input")
@@ -104,29 +82,18 @@ class Calculator {
 
     fun inputDecimal() {
         when (state) {
-            State.INPUT_FIRST_START -> {
+            State.FIRST_FROZEN -> {
                 input.clear()
                 input.appendDecimal()
-                state = State.INPUT_FIRST
+                state = State.FIRST_EDIT
             }
-            State.INPUT_SECOND_START -> {
+            State.SECOND_FROZEN -> {
                 input.clear()
                 input.appendDecimal()
-                state = State.INPUT_SECOND
+                state = State.SECOND_EDIT
             }
-            State.INPUT_NEW_START -> {
-                input.clear()
-                input.appendDecimal()
-                state = State.INPUT_NEW
-            }
-            State.INPUT_FIRST,
-            State.INPUT_SECOND,
-            State.INPUT_NEW -> input.appendDecimal()
-            State.SHOW_ANSWER -> {
-                input.clear()
-                input.appendDecimal()
-                state = State.INPUT_NEW_START
-            }
+            State.FIRST_EDIT,
+            State.SECOND_EDIT -> input.appendDecimal()
         }
 
         logRegisters("input")
@@ -134,21 +101,18 @@ class Calculator {
 
     fun inputClear() {
         input.clear()
-        result = null
         constant = null
         first = 0.0
         operator = Operator.NONE
-        state = State.INPUT_FIRST_START
+        state = State.FIRST_FROZEN
     }
 
     fun inputClearEntry() {
         input.clear()
 
         state = when (state) {
-            State.INPUT_FIRST, State.INPUT_FIRST_START -> State.INPUT_FIRST
-            State.INPUT_SECOND, State.INPUT_SECOND_START -> State.INPUT_SECOND
-            State.INPUT_NEW, State.INPUT_NEW_START -> State.INPUT_NEW
-            State.SHOW_ANSWER -> State.INPUT_NEW
+            State.FIRST_EDIT, State.FIRST_FROZEN -> State.FIRST_EDIT
+            State.SECOND_EDIT, State.SECOND_FROZEN -> State.SECOND_EDIT
         }
     }
 
@@ -181,50 +145,46 @@ class Calculator {
     }
 
     fun inputEqual() {
-        result = when (state) {
-            State.INPUT_FIRST_START,
-            State.INPUT_FIRST -> {
-                when (operator) {
-                    Operator.NONE -> input.toDouble()
-                    else -> throw IllegalStateException("operator set on input first")
-                }
-            }
-            State.INPUT_SECOND_START -> {
+        first = when (state) {
+            State.SECOND_FROZEN -> {
                 constant = first
 
                 when (operator) {
-                    Operator.NONE -> throw IllegalStateException()
+                    Operator.NONE -> throw IllegalStateException("operator must be set on second")
                     Operator.DIVIDE -> operator.calculate(1.0, first)
                     else -> operator.calculate(first, first)
                 }
             }
-            State.INPUT_SECOND -> {
+            State.SECOND_EDIT -> {
                 constant = if (operator == Operator.MULTIPLY) first else input.toDouble()
 
                 when (operator) {
-                    Operator.NONE -> throw IllegalStateException()
+                    Operator.NONE -> throw IllegalStateException("operator must be set on second")
                     else -> operator.calculate(first, input.toDouble())
                 }
             }
-            State.INPUT_NEW -> {
-                if (constant != null) {
-                    operator.calculateConstant(constant!!, input.toDouble())
+            State.FIRST_FROZEN -> {
+                if (operator == Operator.NONE) {
+                    first
+                } else if (constant != null) {
+                    operator.calculateConstant(constant!!, first)
                 } else {
-                    input.toDouble()
+                    throw IllegalStateException("cannot have operator and no constant")
                 }
             }
-            State.INPUT_NEW_START,
-            State.SHOW_ANSWER -> {
-                if (constant != null) {
-                    operator.calculateConstant(constant!!, result!!)
+            State.FIRST_EDIT -> {
+                if (operator == Operator.NONE) {
+                    input.toDouble()
+                } else if (constant != null) {
+                    operator.calculateConstant(constant!!, input.toDouble())
                 } else {
-                    result
+                    throw IllegalStateException("cannot have operator and no constant")
                 }
             }
         }
 
         input.clear()
-        state = State.SHOW_ANSWER
+        state = State.FIRST_FROZEN
 
         logRegisters("eq")
     }
@@ -235,22 +195,19 @@ class Calculator {
         }
 
         when (state) {
-            State.INPUT_NEW_START,
-            State.INPUT_NEW,
-            State.INPUT_FIRST_START,
-            State.INPUT_FIRST -> {
+            State.FIRST_FROZEN -> {
+                state = State.SECOND_FROZEN
+            }
+            State.FIRST_EDIT -> {
                 first = input.toDouble()
-                state = State.INPUT_SECOND_START
+                state = State.SECOND_FROZEN
             }
-            State.INPUT_SECOND_START -> {}
-            State.INPUT_SECOND -> {
+            State.SECOND_FROZEN -> {
+                // change of mind from one operator to the next; no-op
+            }
+            State.SECOND_EDIT -> {
                 first = operator.calculate(first, input.toDouble())
-                result = first
-                state = State.INPUT_SECOND_START
-            }
-            State.SHOW_ANSWER -> {
-                first = result!!
-                state = State.INPUT_SECOND_START
+                state = State.SECOND_FROZEN
             }
         }
 
@@ -270,7 +227,7 @@ class Calculator {
     }
 
     private fun logRegisters(doing: String = "unspec") {
-        println("$doing: state = $state; first = $first; result = $result; constant = $constant; op = $operator; input = $input")
+        println("$doing: state = $state; first = $first; constant = $constant; op = $operator; input = $input")
     }
 }
 
