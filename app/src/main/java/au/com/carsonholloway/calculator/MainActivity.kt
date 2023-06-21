@@ -35,6 +35,10 @@ class MainActivity : ComponentActivity() {
         val buttonDivide = findViewById<Button>(R.id.button_divide)
         val buttonDecimal = findViewById<Button>(R.id.button_decimal)
         val buttonEqual = findViewById<Button>(R.id.button_equal)
+        val buttonMemoryAdd = findViewById<Button>(R.id.memory_add)
+        val buttonMemorySubtract = findViewById<Button>(R.id.memory_subtract)
+        val buttonMemoryRecall = findViewById<Button>(R.id.memory_recall)
+        val buttonMemoryClear = findViewById<Button>(R.id.memory_clear)
 
         buttonClear.setOnClickListener { calculator.inputClear(); updateDisplay() }
         buttonClearEntry.setOnClickListener { calculator.inputClearEntry(); updateDisplay() }
@@ -55,6 +59,10 @@ class MainActivity : ComponentActivity() {
         buttonMultiply.setOnClickListener { calculator.inputMultiply(); updateDisplay() }
         buttonSubtract.setOnClickListener { calculator.inputSubtract(); updateDisplay() }
         buttonDivide.setOnClickListener { calculator.inputDivide(); updateDisplay() }
+        buttonMemoryAdd.setOnClickListener { calculator.inputMemoryAdd(); updateDisplay() }
+        buttonMemorySubtract.setOnClickListener { calculator.inputMemorySubtract(); updateDisplay() }
+        buttonMemoryRecall.setOnClickListener { calculator.inputMemoryRecall(); updateDisplay() }
+        buttonMemoryClear.setOnClickListener { calculator.inputMemoryClear(); updateDisplay() }
     }
 
     private fun updateDisplay() {

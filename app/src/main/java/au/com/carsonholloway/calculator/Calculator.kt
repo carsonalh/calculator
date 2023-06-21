@@ -35,24 +35,30 @@ class Calculator {
     private enum class State {
         /**About to edit the first input of the equation; displaying the value of "first." */
         FIRST_FROZEN,
+
         /**Editing the first input of the equation. */
         FIRST_EDIT,
+
         /**About to edit the second input of the equation; displaying the value of "first." */
         SECOND_FROZEN,
+
         /**Editing the second input of the equation. */
         SECOND_EDIT,
     }
 
     private var first: Double = 0.0
+    private var second: Double = 0.0
     private var constant: Double? = null
     private var state: State = State.FIRST_FROZEN
     private var operator: Operator = Operator.NONE
     private var input: InputDecimal = InputDecimal()
+    private var memory: Double? = null
 
     val display: String
         get() = when (state) {
-            State.FIRST_FROZEN,
-            State.SECOND_FROZEN -> displayDouble(first)
+            State.FIRST_FROZEN -> displayDouble(first)
+            State.SECOND_FROZEN -> displayDouble(second)
+
             State.FIRST_EDIT,
             State.SECOND_EDIT -> input.toString()
         }
@@ -103,8 +109,12 @@ class Calculator {
         input.clear()
         constant = null
         first = 0.0
+        second = 0.0
+        memory = null
         operator = Operator.NONE
         state = State.FIRST_FROZEN
+
+        logRegisters("c")
     }
 
     fun inputClearEntry() {
@@ -114,6 +124,8 @@ class Calculator {
             State.FIRST_EDIT, State.FIRST_FROZEN -> State.FIRST_EDIT
             State.SECOND_EDIT, State.SECOND_FROZEN -> State.SECOND_EDIT
         }
+
+        logRegisters("ce")
     }
 
     fun inputDelete() {
@@ -147,12 +159,16 @@ class Calculator {
     fun inputEqual() {
         first = when (state) {
             State.SECOND_FROZEN -> {
-                constant = first
+                constant = when (operator) {
+                    Operator.NONE -> throw IllegalStateException("operator must be set on second")
+                    Operator.MULTIPLY -> first
+                    Operator.ADD, Operator.SUBTRACT, Operator.DIVIDE -> second
+                }
 
                 when (operator) {
                     Operator.NONE -> throw IllegalStateException("operator must be set on second")
                     Operator.DIVIDE -> operator.calculate(1.0, first)
-                    else -> operator.calculate(first, first)
+                    else -> operator.calculate(first, second)
                 }
             }
             State.SECOND_EDIT -> {
@@ -189,6 +205,53 @@ class Calculator {
         logRegisters("eq")
     }
 
+    fun inputMemoryAdd() {
+        memory = (if (memory != null) memory!! else 0.0) + when (state) {
+            State.FIRST_FROZEN -> first
+            State.SECOND_FROZEN -> second
+            State.FIRST_EDIT, State.SECOND_EDIT -> input.toDouble()
+        }
+
+        logRegisters("m+")
+    }
+
+    fun inputMemorySubtract() {
+        memory = (if (memory != null) memory!! else 0.0) - when (state) {
+            State.FIRST_FROZEN -> first
+            State.SECOND_FROZEN -> second
+            State.FIRST_EDIT, State.SECOND_EDIT -> input.toDouble()
+        }
+
+        logRegisters("m-")
+    }
+
+    fun inputMemoryRecall() {
+        if (memory != null) {
+            when (state) {
+                State.FIRST_FROZEN -> first = memory!!
+                State.SECOND_FROZEN -> second = memory!!
+                State.FIRST_EDIT -> {
+                    first = memory!!
+                    state = State.FIRST_FROZEN
+                }
+                State.SECOND_EDIT -> {
+                    second = memory!!
+                    state = State.SECOND_FROZEN
+                }
+            }
+        }
+
+        // if memory is null, MR is a no-op
+
+        logRegisters("mr")
+    }
+
+    fun inputMemoryClear() {
+        memory = null
+
+        logRegisters("mc")
+    }
+
     private fun inputOperator(op: Operator) {
         if (op == Operator.NONE) {
             throw IllegalArgumentException()
@@ -196,10 +259,12 @@ class Calculator {
 
         when (state) {
             State.FIRST_FROZEN -> {
+                second = first
                 state = State.SECOND_FROZEN
             }
             State.FIRST_EDIT -> {
                 first = input.toDouble()
+                second = first
                 state = State.SECOND_FROZEN
             }
             State.SECOND_FROZEN -> {
@@ -207,6 +272,7 @@ class Calculator {
             }
             State.SECOND_EDIT -> {
                 first = operator.calculate(first, input.toDouble())
+                second = first
                 state = State.SECOND_FROZEN
             }
         }
@@ -227,7 +293,7 @@ class Calculator {
     }
 
     private fun logRegisters(doing: String = "unspec") {
-        println("$doing: state = $state; first = $first; constant = $constant; op = $operator; input = $input")
+        println("$doing: state = $state; first = $first; second = $second; memory = $memory; constant = $constant; op = $operator; input = $input")
     }
 }
 

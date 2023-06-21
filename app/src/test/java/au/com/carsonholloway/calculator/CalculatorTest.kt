@@ -144,6 +144,25 @@ class CalculatorTest {
         assertNumericEquivalent(10.0, calculator.display)
     }
 
+    @Test
+    fun `add and recall memory`() {
+        calculator.enterSequence("3M+E5*MR=")
+        assertNumericEquivalent(15.0, calculator.display)
+    }
+
+    @Test
+    fun `C clears memory`() {
+        calculator.enterSequence("3M+C5*MR=")
+        assertNumericEquivalent(25.0, calculator.display)
+    }
+
+    @Test
+    fun `compute polynomial with memory`() {
+        // let us compute 2x^2 + 3x + 5 at x = 2.5
+        calculator.enterSequence("2.5*=*2=M+2.5*3=M+5M+MR")
+        assertNumericEquivalent(25.0, calculator.display)
+    }
+
     private fun assertNumericEquivalent(value: Double, actual: String) {
         val delta = 0.001
         val numberFormat = NumberFormat.getNumberInstance(Locale.US)
@@ -155,8 +174,9 @@ class CalculatorTest {
     }
 
     private fun Calculator.enterSequence(sequence: String) {
-        for (c in sequence) {
-            when (c) {
+        var i = 0
+        while (i < sequence.length) {
+            when (sequence[i]) {
                 '0' -> this.inputDigit(0)
                 '1' -> this.inputDigit(1)
                 '2' -> this.inputDigit(2)
@@ -176,8 +196,17 @@ class CalculatorTest {
                 'D' -> this.inputDelete()
                 'C' -> this.inputClear()
                 'E' -> this.inputClearEntry()
-                else -> throw IllegalArgumentException("unexpected sequence char $c")
+                'M' -> when (sequence[++i]) {
+                    '+' -> this.inputMemoryAdd()
+                    '-' -> this.inputMemorySubtract()
+                    'R' -> this.inputMemoryRecall()
+                    'C' -> this.inputMemoryClear()
+                    else -> throw IllegalArgumentException("unexpected char '${sequence[i]}' after M")
+                }
+                else -> throw IllegalArgumentException("unexpected sequence char ${sequence[i]}")
             }
+
+            i++
         }
     }
 }
