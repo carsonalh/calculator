@@ -1,9 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="CalculatorButton">
-        <item name="android:layout_rowWeight">1</item>
-        <item name="android:layout_columnWeight">1</item>
+    <style name="DigitButton" parent="android:Widget.Material.Button.Borderless">
+        <item name="android:layout_width">72dp</item>
+        <item name="android:layout_height">72dp</item>
         <item name="android:textSize">18pt</item>
+        <item name="android:textColor">@color/digit_foreground</item>
+        <item name="android:background">@drawable/digit_button</item>
+    </style>
+    <style name="BinaryOperatorButton" parent="android:Widget.Material.Button.Borderless">
+        <item name="android:layout_width">72dp</item>
+        <item name="android:layout_height">72dp</item>
+        <item name="android:textSize">18pt</item>
+        <item name="android:textColor">@color/binary_operator_foreground</item>
+        <item name="android:background">@drawable/binary_operator_button</item>
+    </style>
+    <style name="EqualButton" parent="android:Widget.Material.Button.Borderless">
+        <item name="android:layout_width">72dp</item>
+        <item name="android:layout_height">72dp</item>
+        <item name="android:textSize">18pt</item>
+        <item name="android:textColor">@color/equal_foreground</item>
+        <item name="android:background">@drawable/equal_button</item>
+    </style>
+    <style name="UnaryOperatorButton" parent="android:Widget.Material.Button.Borderless">
+        <item name="android:layout_width">72dp</item>
+        <item name="android:layout_height">72dp</item>
+        <item name="android:textSize">18pt</item>
+        <item name="android:textColor">@color/unary_operator_foreground</item>
+        <item name="android:background">@drawable/unary_operator_button</item>
+    </style>
+    <style name="MemoryButton" parent="android:Widget.Material.Button.Borderless">
+        <item name="android:layout_width">60dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">14pt</item>
+        <item name="android:textColor">@color/memory_foreground</item>
+        <item name="android:background">@drawable/memory_button</item>
     </style>
     <style name="Theme.Calculator" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>

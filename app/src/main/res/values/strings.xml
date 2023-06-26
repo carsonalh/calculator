@@ -10,9 +10,9 @@
     <string name="digit_7">7</string>
     <string name="digit_8">8</string>
     <string name="digit_9">9</string>
-    <string name="clear">C</string>
+    <string name="clear_all">AC</string>
     <string name="clear_entry">CE</string>
-    <string name="delete">DEL</string>
+    <string name="delete">D</string>
     <string name="multiply_symbol">×</string>
     <string name="divide_symbol">÷</string>
     <string name="subtract_symbol">-</string>
@@ -23,4 +23,6 @@
     <string name="memory_subtract">M-</string>
     <string name="memory_recall">MR</string>
     <string name="memory_clear">MC</string>
+    <string name="square_root">Q</string>
+    <string name="negate">+-</string>
 </resources>

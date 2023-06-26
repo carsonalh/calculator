@@ -2,8 +2,15 @@ package au.com.carsonholloway.calculator
 
 import kotlin.math.abs
 import kotlin.math.roundToLong
+import kotlin.math.sqrt
 
 class Calculator {
+
+    enum class ClearText {
+        CLEAR_ENTRY,
+        CLEAR_ALL,
+    }
+
     private enum class Operator {
         NONE,
         ADD,
@@ -53,6 +60,12 @@ class Calculator {
     private var operator: Operator = Operator.NONE
     private var input: InputDecimal = InputDecimal()
     private var memory: Double? = null
+
+    val buttonClearText: ClearText
+        get() = when(state) {
+            State.FIRST_FROZEN, State.SECOND_FROZEN -> ClearText.CLEAR_ALL
+            State.FIRST_EDIT, State.SECOND_EDIT -> ClearText.CLEAR_ENTRY
+        }
 
     val display: String
         get() = when (state) {
@@ -106,26 +119,67 @@ class Calculator {
     }
 
     fun inputClear() {
-        input.clear()
-        constant = null
-        first = 0.0
-        second = 0.0
-        memory = null
-        operator = Operator.NONE
-        state = State.FIRST_FROZEN
-
-        logRegisters("c")
-    }
-
-    fun inputClearEntry() {
-        input.clear()
-
-        state = when (state) {
-            State.FIRST_EDIT, State.FIRST_FROZEN -> State.FIRST_EDIT
-            State.SECOND_EDIT, State.SECOND_FROZEN -> State.SECOND_EDIT
+        when (state) {
+            State.FIRST_FROZEN, State.SECOND_FROZEN -> {
+                // clear all
+                input.clear()
+                constant = null
+                first = 0.0
+                second = 0.0
+                operator = Operator.NONE
+                state = State.FIRST_FROZEN
+            }
+            State.FIRST_EDIT -> {
+                // clear entry
+                input.clear()
+                state = State.FIRST_FROZEN
+            }
+            State.SECOND_EDIT -> {
+                // clear entry
+                input.clear()
+                state = State.SECOND_FROZEN
+            }
         }
 
-        logRegisters("ce")
+        logRegisters("clear")
+    }
+
+    fun inputNegate() {
+        when (state) {
+            State.FIRST_EDIT -> {
+                first = -input.toDouble()
+                state = State.FIRST_FROZEN
+            }
+            State.SECOND_EDIT -> {
+                second = -input.toDouble()
+                state = State.SECOND_FROZEN
+            }
+            State.FIRST_FROZEN -> {
+                first = -first
+            }
+            State.SECOND_FROZEN -> {
+                second = -second
+            }
+        }
+    }
+
+    fun inputSquareRoot() {
+        when (state) {
+            State.FIRST_EDIT -> {
+                first = sqrt(input.toDouble())
+                state = State.FIRST_FROZEN
+            }
+            State.SECOND_EDIT -> {
+                second = sqrt(input.toDouble())
+                state = State.SECOND_FROZEN
+            }
+            State.FIRST_FROZEN -> {
+                first = sqrt(first)
+            }
+            State.SECOND_FROZEN -> {
+                second = sqrt(second)
+            }
+        }
     }
 
     fun inputDelete() {
@@ -206,20 +260,38 @@ class Calculator {
     }
 
     fun inputMemoryAdd() {
-        memory = (if (memory != null) memory!! else 0.0) + when (state) {
+        memory = (memory ?: 0.0) + when (state) {
             State.FIRST_FROZEN -> first
             State.SECOND_FROZEN -> second
-            State.FIRST_EDIT, State.SECOND_EDIT -> input.toDouble()
+            State.FIRST_EDIT -> {
+                state = State.FIRST_FROZEN
+                first = input.toDouble()
+                first
+            }
+            State.SECOND_EDIT -> {
+                state = State.SECOND_FROZEN
+                second = input.toDouble()
+                second
+            }
         }
 
         logRegisters("m+")
     }
 
     fun inputMemorySubtract() {
-        memory = (if (memory != null) memory!! else 0.0) - when (state) {
+        memory = (memory ?: 0.0) - when (state) {
             State.FIRST_FROZEN -> first
             State.SECOND_FROZEN -> second
-            State.FIRST_EDIT, State.SECOND_EDIT -> input.toDouble()
+            State.FIRST_EDIT -> {
+                state = State.FIRST_FROZEN
+                first = input.toDouble()
+                first
+            }
+            State.SECOND_EDIT -> {
+                state = State.SECOND_FROZEN
+                second = input.toDouble()
+                second
+            }
         }
 
         logRegisters("m-")
@@ -295,6 +367,7 @@ class Calculator {
     private fun logRegisters(doing: String = "unspec") {
         println("$doing: state = $state; first = $first; second = $second; memory = $memory; constant = $constant; op = $operator; input = $input")
     }
+
 }
 
 private fun String.truncateDecimal(): String =

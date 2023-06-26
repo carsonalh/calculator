@@ -46,7 +46,7 @@ class CalculatorTest {
 
     @Test
     fun `clear current entry`() {
-        calculator.enterSequence("15+35628756E15=")
+        calculator.enterSequence("15+35628756C15=")
         assertNumericEquivalent(30.0, calculator.display)
     }
 
@@ -146,14 +146,20 @@ class CalculatorTest {
 
     @Test
     fun `add and recall memory`() {
-        calculator.enterSequence("3M+E5*MR=")
+        calculator.enterSequence("3M+C5*MR=")
         assertNumericEquivalent(15.0, calculator.display)
     }
 
     @Test
-    fun `C clears memory`() {
-        calculator.enterSequence("3M+C5*MR=")
-        assertNumericEquivalent(25.0, calculator.display)
+    fun `clear all does not clear memory`() {
+        calculator.enterSequence("3M+CC5*MR=")
+        assertNumericEquivalent(15.0, calculator.display)
+    }
+
+    @Test
+    fun `memory add does not clear display`() {
+        calculator.enterSequence("5M+")
+        assertNumericEquivalent(5.0, calculator.display)
     }
 
     @Test
@@ -161,6 +167,77 @@ class CalculatorTest {
         // let us compute 2x^2 + 3x + 5 at x = 2.5
         calculator.enterSequence("2.5*=*2=M+2.5*3=M+5M+MR")
         assertNumericEquivalent(25.0, calculator.display)
+    }
+
+    @Test
+    fun `memory freezes the display`() {
+        calculator.enterSequence("8M+5M-MR")
+        assertNumericEquivalent(3.0, calculator.display)
+    }
+
+    @Test
+    fun `all clear and clear entry are same button`() {
+        calculator.enterSequence("2+3C5=")
+        assertNumericEquivalent(7.0, calculator.display)
+        calculator.enterSequence("*3CC1=")
+        assertNumericEquivalent(1.0, calculator.display)
+    }
+
+    @Test
+    fun `all clear appears on frozen input`() {
+        assertEquals(Calculator.ClearText.CLEAR_ALL, calculator.buttonClearText)
+        calculator.enterSequence("15")
+        assertEquals(Calculator.ClearText.CLEAR_ENTRY, calculator.buttonClearText)
+        calculator.enterSequence("C1+1=")
+        assertEquals(Calculator.ClearText.CLEAR_ALL, calculator.buttonClearText)
+    }
+
+    @Test
+    fun `negate a number`() {
+        calculator.enterSequence("15N=")
+        assertNumericEquivalent(-15.0, calculator.display)
+    }
+
+    @Test
+    fun `negate freezes the number`() {
+        calculator.enterSequence("32N3=")
+        assertNumericEquivalent(3.0, calculator.display)
+    }
+
+    @Test
+    fun `negate the result of an equation`() {
+        calculator.enterSequence("5+7=N")
+        assertNumericEquivalent(-12.0, calculator.display)
+    }
+
+    @Test
+    fun `take a square root`() {
+        calculator.enterSequence("4Q=")
+        assertNumericEquivalent(2.0, calculator.display)
+    }
+
+    @Test
+    fun `take square root of second term`() {
+        calculator.enterSequence("5+4Q=")
+        assertNumericEquivalent(7.0, calculator.display)
+    }
+
+    @Test
+    fun `take a square root of a result`() {
+        calculator.enterSequence("6+3=Q")
+        assertNumericEquivalent(3.0, calculator.display)
+    }
+
+    @Test
+    fun `square root freezes the number`() {
+        calculator.enterSequence("2Q3+2=")
+        assertNumericEquivalent(5.0, calculator.display)
+    }
+
+    @Test
+    fun `double negate`() {
+        calculator.enterSequence("12NN=")
+        assertNumericEquivalent(12.0, calculator.display)
     }
 
     private fun assertNumericEquivalent(value: Double, actual: String) {
@@ -195,7 +272,8 @@ class CalculatorTest {
                 '=' -> this.inputEqual()
                 'D' -> this.inputDelete()
                 'C' -> this.inputClear()
-                'E' -> this.inputClearEntry()
+                'N' -> this.inputNegate()
+                'Q' -> this.inputSquareRoot()
                 'M' -> when (sequence[++i]) {
                     '+' -> this.inputMemoryAdd()
                     '-' -> this.inputMemorySubtract()
