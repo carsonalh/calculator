@@ -11,15 +11,21 @@
     <TextView
         android:id="@+id/display"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginBottom="12dp"
         android:ellipsize="start"
+        android:paddingHorizontal="16dp"
         android:paddingVertical="48dp"
-        android:paddingHorizontal="12dp"
         android:singleLine="true"
         android:textAlignment="textEnd"
-        android:textSize="24pt"
+        android:textSize="32pt"
+        android:textColor="#000000"
+        android:gravity="end|top"
+        android:fontFamily="@font/made_tommy_semibold"
+        android:background="@drawable/display_background"
+        app:layout_constraintBottom_toTopOf="@+id/buttonsLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -42,10 +48,11 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/buttonMemorySubtract" />
 
-        <Button
+        <ImageButton
             android:id="@+id/buttonSquareRoot"
             style="@style/UnaryOperatorButton"
-            android:text="@string/square_root"
+            android:src="@drawable/square_root"
+            android:contentDescription="@string/square_root_alt"
             app:layout_constraintBottom_toBottomOf="@+id/buttonClear"
             app:layout_constraintEnd_toStartOf="@+id/buttonDivide"
             app:layout_constraintHorizontal_bias="0.5"
@@ -60,10 +67,11 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/buttonMemoryRecall" />
 
-        <Button
+        <ImageButton
             android:id="@+id/buttonMultiply"
             style="@style/BinaryOperatorButton"
-            android:text="@string/multiply_symbol"
+            android:src="@drawable/multiply"
+            android:contentDescription="@string/multiply_alt"
             app:layout_constraintBottom_toBottomOf="@+id/button7"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -78,10 +86,11 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <Button
+        <ImageButton
             android:id="@+id/buttonDivide"
             style="@style/BinaryOperatorButton"
-            android:text="@string/divide_symbol"
+            android:src="@drawable/divide"
+            android:contentDescription="@string/divide_alt"
             app:layout_constraintBottom_toBottomOf="@+id/buttonClear"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -106,10 +115,11 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/buttonMemoryAdd" />
 
-        <Button
+        <ImageButton
             android:id="@+id/buttonNegate"
             style="@style/UnaryOperatorButton"
-            android:text="@string/negate"
+            android:src="@drawable/negate"
+            android:contentDescription="@string/negate_alt"
             app:layout_constraintBottom_toBottomOf="@+id/buttonClear"
             app:layout_constraintEnd_toStartOf="@+id/buttonSquareRoot"
             app:layout_constraintHorizontal_bias="0.5"
@@ -172,10 +182,11 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/button5" />
 
-        <Button
+        <ImageButton
             android:id="@+id/buttonSubtract"
             style="@style/BinaryOperatorButton"
-            android:text="@string/subtract_symbol"
+            android:src="@drawable/subtract"
+            android:contentDescription="@string/subtract_alt"
             app:layout_constraintBottom_toBottomOf="@+id/button4"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -209,10 +220,11 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/button2" />
 
-        <Button
+        <ImageButton
             android:id="@+id/buttonAdd"
             style="@style/BinaryOperatorButton"
-            android:text="@string/add_symbol"
+            android:src="@drawable/add"
+            android:contentDescription="@string/add_alt"
             app:layout_constraintBottom_toBottomOf="@+id/button1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -236,19 +248,21 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/button0" />
 
-        <Button
+        <ImageButton
             android:id="@+id/buttonDelete"
             style="@style/DigitButton"
-            android:text="@string/delete"
+            android:src="@drawable/delete_button"
+            android:contentDescription="@string/backspace_alt"
             app:layout_constraintBottom_toBottomOf="@+id/button0"
             app:layout_constraintEnd_toStartOf="@+id/buttonEqual"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/buttonDecimal" />
 
-        <Button
+        <ImageButton
             android:id="@+id/buttonEqual"
             style="@style/EqualButton"
-            android:text="@string/equals"
+            android:src="@drawable/equal"
+            android:contentDescription="@string/equal_alt"
             app:layout_constraintBottom_toBottomOf="@+id/button0"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"

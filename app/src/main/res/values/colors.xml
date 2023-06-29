@@ -9,14 +9,14 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="memory_background">#00000000</color>
-    <color name="memory_foreground">#000000</color>
+    <color name="memory_foreground">#303030</color>
     <color name="memory_ripple">#E8E8E8</color>
     <color name="digit_background">#E8E8E8</color>
     <color name="digit_foreground">#000000</color>
     <color name="digit_ripple">#CCCCCC</color>
     <color name="equal_background">#EC742E</color>
     <color name="equal_foreground">#FFFFFF</color>
-    <color name="equal_ripple">#DD7733</color>
+    <color name="equal_ripple">#F0B198</color>
     <color name="binary_operator_background">#AED3E5</color>
     <color name="binary_operator_foreground">#1A1C4E</color>
     <color name="binary_operator_ripple">#73A0B6</color>

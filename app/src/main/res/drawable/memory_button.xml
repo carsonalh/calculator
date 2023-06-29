@@ -4,13 +4,13 @@
     android:color="@color/memory_ripple">
     <item android:id="@android:id/mask">
         <shape android:shape="rectangle">
-            <corners android:radius="4dp" />
+            <corners android:radius="6dp" />
             <solid android:color="#ffffff" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="4dp" />
+            <corners android:radius="6dp" />
             <solid android:color="@color/memory_background" />
         </shape>
     </item>
