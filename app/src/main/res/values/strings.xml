@@ -12,17 +12,17 @@
     <string name="digit_9">9</string>
     <string name="clear_all">AC</string>
     <string name="clear_entry">CE</string>
-    <string name="delete">D</string>
-    <string name="multiply_symbol">×</string>
-    <string name="divide_symbol">÷</string>
-    <string name="subtract_symbol">-</string>
     <string name="decimal_indicator">.</string>
-    <string name="equals">=</string>
-    <string name="add_symbol">+</string>
     <string name="memory_add">M+</string>
     <string name="memory_subtract">M-</string>
     <string name="memory_recall">MR</string>
     <string name="memory_clear">MC</string>
-    <string name="square_root">Q</string>
-    <string name="negate">+-</string>
+    <string name="square_root_alt">Square root</string>
+    <string name="multiply_alt">Multiply</string>
+    <string name="divide_alt">Divide</string>
+    <string name="negate_alt">Negate</string>
+    <string name="subtract_alt">Subtract</string>
+    <string name="add_alt">Add</string>
+    <string name="backspace_alt">Backspace</string>
+    <string name="equal_alt">Equal</string>
 </resources>
