@@ -4,7 +4,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import java.text.NumberFormat
-import java.util.Locale
 
 class CalculatorTest {
     private lateinit var calculator: Calculator
@@ -240,9 +239,22 @@ class CalculatorTest {
         assertNumericEquivalent(12.0, calculator.display)
     }
 
+    @Test
+    fun `handles divide by zero`() {
+        calculator.enterSequence("1/0=")
+        // any numeric description of this is wrong
+        assertEquals(null, calculator.display.toDoubleOrNull())
+    }
+
+    @Test
+    fun `displays negative three-digit numbers`() {
+        calculator.enterSequence("80*10N=")
+        assertNumericEquivalent(-800.0, calculator.display)
+    }
+
     private fun assertNumericEquivalent(value: Double, actual: String) {
         val delta = 0.001
-        val numberFormat = NumberFormat.getNumberInstance(Locale.US)
+        val numberFormat = NumberFormat.getNumberInstance()
         assertEquals(
             value,
             numberFormat.parse(actual)!!.toDouble(),

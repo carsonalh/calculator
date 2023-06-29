@@ -1,7 +1,6 @@
 package au.com.carsonholloway.calculator
 
-import kotlin.math.abs
-import kotlin.math.roundToLong
+import java.text.DecimalFormat
 import kotlin.math.sqrt
 
 class Calculator {
@@ -353,15 +352,7 @@ class Calculator {
     }
 
     private fun displayDouble(d: Double): String {
-        val epsilon = 0.000000005
-
-        val concise = if (abs(d.roundToLong() - d) < epsilon) {
-            d.roundToLong().toString().truncateDecimal()
-        } else {
-            String.format("%.8f", d).truncateTrailingZeros().truncateDecimal()
-        }
-
-        return concise.withCommas()
+        return DecimalFormat("#,###.#####").format(d)
     }
 
     private fun logRegisters(doing: String = "unspec") {
@@ -369,23 +360,6 @@ class Calculator {
     }
 
 }
-
-private fun String.truncateDecimal(): String =
-    if (this.lastOrNull() == '.') this.substring(0, this.length - 1) else this
-
-private fun String.truncateTrailingZeros(): String {
-    var end = this.length
-    for (i in this.indices.reversed()) {
-        if (this[i] == '0') {
-            end = i
-        } else {
-            break
-        }
-    }
-
-    return this.substring(0, end)
-}
-
 
 private fun String.withCommas(): String {
     val numCharsBeforeDecimal = if (this.indexOf('.') < 0) {
