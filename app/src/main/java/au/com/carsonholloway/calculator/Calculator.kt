@@ -377,8 +377,10 @@ class Calculator {
     }
 
     private fun displayDouble(d: Double): String {
-        return if (abs(d) < 1e12) {
+        return if (d == 0.0 || 1e-4 <= abs(d) && abs(d) < 1e12) {
             DecimalFormat("#,###.#####").format(d)
+        } else if (d.isNaN()) {
+            "NaN" // TODO internationalise
         } else {
             DecimalFormat("0.#####E0").format(d).lowercase()
         }
