@@ -1,8 +1,9 @@
 package au.com.carsonholloway.calculator
 
-import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.toLowerCase
+import java.math.BigDecimal
 import java.text.DecimalFormat
+import java.text.NumberFormat
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -379,7 +380,7 @@ class Calculator {
         return if (abs(d) < 1e12) {
             DecimalFormat("#,###.#####").format(d)
         } else {
-            DecimalFormat("0.#####E0").format(d).toLowerCase(Locale.current)
+            DecimalFormat("0.#####E0").format(d).lowercase()
         }
     }
 
@@ -389,63 +390,90 @@ class Calculator {
 
 }
 
-private fun String.withCommas(): String {
-    val numCharsBeforeDecimal = if (this.indexOf('.') < 0) {
-        this.length
-    } else {
-        this.indexOf('.')
-    }
-
-    val builder = StringBuilder()
-
-    for (i in 0 until numCharsBeforeDecimal) {
-        if (i != 0 && i % 3 == numCharsBeforeDecimal % 3) {
-            builder.append(',')
-        }
-
-        builder.append(this[i])
-    }
-
-    builder.append(this.substring(numCharsBeforeDecimal))
-
-    return builder.toString()
-}
-
 /**
  * A decimal value designed to be written to by the user directly with a number sequence
  */
 private class InputDecimal() {
-    private var string: String = "0"
+    private var integerPart: String = "0"
+    private var decimalSet: Boolean = false
+    private var fractionalPart: String = ""
 
     fun appendDigit(d: Int) {
-        if (string == "0") {
-            string = "" + ('0' + d)
+        if (d < 0 || d > 9) {
+            throw IllegalArgumentException("input must be one digit")
+        }
+
+        if (decimalSet) {
+            fractionalPart += ('0' + d)
+        } else if (integerPart == "0") {
+            integerPart = "" + ('0' + d)
         } else {
-            string += ('0' + d)
+            integerPart += ('0' + d)
         }
     }
 
     fun appendDecimal() {
-        if (!string.contains('.')) {
-            string += '.'
-        }
+        decimalSet = true
     }
 
     fun deleteLast() {
-        if (string.isEmpty()) {
+        if (fractionalPart.isNotEmpty()) {
+            fractionalPart = fractionalPart.substring(0 until fractionalPart.length - 1)
+        } else if (decimalSet) {
+            decimalSet = false
+        } else if (integerPart.length >= 2) {
+            integerPart = integerPart.substring(0 until integerPart.length - 1)
+        } else if (integerPart.length == 1) {
+            integerPart = "0"
+        } else {
+            throw IllegalStateException()
+        }
+    }
+
+    fun toDouble(): Double {
+        return NumberFormat
+            .getInstance(Locale.US)
+            .parse("$integerPart.$fractionalPart")!!
+            .toDouble()
+    }
+
+    fun clear() {
+        integerPart = "0"
+        decimalSet = false
+        fractionalPart = ""
+    }
+
+    override fun toString(): String {
+        val decimalFormat = DecimalFormat.getInstance() as DecimalFormat
+        val separator = decimalFormat.decimalFormatSymbols.decimalSeparator
+
+        decimalFormat.isParseBigDecimal = true
+        val integerBigDecimal = decimalFormat.parse(integerPart) as BigDecimal
+
+        val builder = StringBuilder()
+
+        builder.append(DecimalFormat("#,###").format(integerBigDecimal))
+
+        if (decimalSet) {
+            builder.append(separator)
+            builder.append(fractionalPart)
+        } else if (fractionalPart != "") {
             throw IllegalStateException()
         }
 
-        string = if (string.length - 1 == 0) "0" else string.substring(0, string.length - 1)
+        return builder.toString()
     }
 
-    fun toDouble(): Double = string.toDouble()
+    fun rawString(): String {
+        val builder = StringBuilder()
 
-    fun clear() {
-        string = "0"
+        builder.append(integerPart)
+
+        if (decimalSet) {
+            builder.append('.')
+            builder.append(fractionalPart)
+        }
+
+        return builder.toString()
     }
-
-    override fun toString(): String = string.withCommas()
-
-    fun rawString(): String = string
 }

@@ -242,7 +242,6 @@
         <Button
             android:id="@+id/buttonDecimal"
             style="@style/DigitButton"
-            android:text="@string/decimal_indicator"
             app:layout_constraintBottom_toBottomOf="@+id/button0"
             app:layout_constraintEnd_toStartOf="@+id/buttonDelete"
             app:layout_constraintHorizontal_bias="0.5"
