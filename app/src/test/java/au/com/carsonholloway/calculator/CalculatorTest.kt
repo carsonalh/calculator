@@ -252,6 +252,21 @@ class CalculatorTest {
         assertNumericEquivalent(-800.0, calculator.display)
     }
 
+    @Test
+    fun `allows user to set the maximum digits to input`() {
+        calculator.maxAllowedDigits = 4
+        calculator.enterSequence("12345")
+
+        assertNumericEquivalent(1234.0, calculator.display)
+    }
+
+    @Test
+    fun `max allowed digits does not include decimal separator`() {
+        calculator.maxAllowedDigits = 6
+        calculator.enterSequence("1234.56")
+        assertNumericEquivalent(1234.56, calculator.display)
+    }
+
     private fun assertNumericEquivalent(value: Double, actual: String) {
         val delta = 0.001
         val numberFormat = NumberFormat.getNumberInstance()

@@ -2,6 +2,8 @@ package au.com.carsonholloway.calculator
 
 import android.os.Build
 import android.os.Bundle
+import android.text.TextPaint
+import android.util.TypedValue
 import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.Button
@@ -9,14 +11,18 @@ import android.widget.TextView
 import androidx.activity.ComponentActivity
 
 class MainActivity : ComponentActivity() {
+    private val maxInputLength = 18
     private val calculator = Calculator()
 
+    private var displayInitialTextSizePx: Float = 0f
     private lateinit var display: TextView
     private lateinit var buttonClear: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        calculator.maxAllowedDigits = maxInputLength
 
         display = findViewById(R.id.display)
         display.text = calculator.display
@@ -47,6 +53,8 @@ class MainActivity : ComponentActivity() {
         val buttonMemoryClear = findViewById<View>(R.id.buttonMemoryClear)
         val buttonNegate = findViewById<View>(R.id.buttonNegate)
         val buttonSquareRoot = findViewById<View>(R.id.buttonSquareRoot)
+
+        displayInitialTextSizePx = display.textSize
 
         buttonClear.setOnClickListener { calculator.inputClear(); onButtonClick(it) }
         buttonDelete.setOnClickListener { calculator.inputDelete(); onButtonClick(it) }
@@ -79,11 +87,39 @@ class MainActivity : ComponentActivity() {
             view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS)
         }
 
-        display.text = calculator.display
+        updateDisplay()
         buttonClear.text = when (calculator.buttonClearText) {
             Calculator.ClearText.CLEAR_ENTRY -> getString(R.string.clear_entry)
             Calculator.ClearText.CLEAR_ALL -> getString(R.string.clear_all)
         }
+    }
+
+    private fun updateDisplay() {
+        // works under the assumption that increased sizes of the display's font do not decrease a
+        // rendered character's width
+
+        val paint = TextPaint(display.paint)
+
+        paint.textSize = displayInitialTextSizePx
+
+        val availableWidth = display.width - display.paddingLeft - display.paddingRight
+
+        if (paint.measureText(calculator.display) <= availableWidth) {
+            display.setTextSize(TypedValue.COMPLEX_UNIT_PX, displayInitialTextSizePx)
+            display.text = calculator.display
+            return
+        }
+
+        val downsizeIncrementPx = 1.0f
+
+        // let us downsize the text until it fits
+
+        while (paint.measureText(calculator.display) > availableWidth) {
+            paint.textSize -= downsizeIncrementPx
+        }
+
+        display.setTextSize(TypedValue.COMPLEX_UNIT_PX, paint.textSize)
+        display.text = calculator.display
     }
 }
 

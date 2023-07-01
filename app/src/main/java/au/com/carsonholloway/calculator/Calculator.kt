@@ -52,6 +52,15 @@ class Calculator {
         SECOND_EDIT,
     }
 
+    var maxAllowedDigits: Int = 0
+        set(value) {
+            if (value < 0) {
+                throw IllegalArgumentException("max allowed digits must be >= 0")
+            }
+
+            field = value
+        }
+
     private var first: Double = 0.0
     private var second: Double = 0.0
     private var constant: Double? = null
@@ -78,6 +87,18 @@ class Calculator {
     fun inputDigit(digit: Int) {
         if (digit < 0 || digit > 9) {
             throw IllegalArgumentException("expected a single digit input")
+        }
+
+        if (maxAllowedDigits > 0) {
+            val rawInput = input.rawString()
+
+            val countedLength = rawInput.length - if (rawInput.contains('.')) 1 else 0
+
+            if (countedLength > maxAllowedDigits) {
+                throw IllegalStateException()
+            } else if (countedLength == maxAllowedDigits) {
+                return
+            } // otherwise, we can continue just fine
         }
 
         when (state) {
@@ -418,4 +439,6 @@ private class InputDecimal() {
     }
 
     override fun toString(): String = string.withCommas()
+
+    fun rawString(): String = string
 }
