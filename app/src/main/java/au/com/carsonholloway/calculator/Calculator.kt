@@ -1,6 +1,9 @@
 package au.com.carsonholloway.calculator
 
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toLowerCase
 import java.text.DecimalFormat
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 class Calculator {
@@ -373,7 +376,11 @@ class Calculator {
     }
 
     private fun displayDouble(d: Double): String {
-        return DecimalFormat("#,###.#####").format(d)
+        return if (abs(d) < 1e12) {
+            DecimalFormat("#,###.#####").format(d)
+        } else {
+            DecimalFormat("0.#####E0").format(d).toLowerCase(Locale.current)
+        }
     }
 
     private fun logRegisters(doing: String = "unspec") {
