@@ -5,6 +5,7 @@ import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.abs
+import kotlin.math.pow
 import kotlin.math.sqrt
 
 class Calculator {
@@ -74,7 +75,7 @@ class Calculator {
     private var memory: Double? = null
 
     val buttonClearText: ClearText
-        get() = when(state) {
+        get() = when (state) {
             State.FIRST_FROZEN, State.SECOND_FROZEN -> ClearText.CLEAR_ALL
             State.FIRST_EDIT, State.SECOND_EDIT -> ClearText.CLEAR_ENTRY
         }
@@ -111,11 +112,13 @@ class Calculator {
                 input.appendDigit(digit)
                 state = State.FIRST_EDIT
             }
+
             State.SECOND_FROZEN -> {
                 input.clear()
                 input.appendDigit(digit)
                 state = State.SECOND_EDIT
             }
+
             State.FIRST_EDIT,
             State.SECOND_EDIT -> input.appendDigit(digit)
         }
@@ -130,11 +133,13 @@ class Calculator {
                 input.appendDecimal()
                 state = State.FIRST_EDIT
             }
+
             State.SECOND_FROZEN -> {
                 input.clear()
                 input.appendDecimal()
                 state = State.SECOND_EDIT
             }
+
             State.FIRST_EDIT,
             State.SECOND_EDIT -> input.appendDecimal()
         }
@@ -153,11 +158,13 @@ class Calculator {
                 operator = Operator.NONE
                 state = State.FIRST_FROZEN
             }
+
             State.FIRST_EDIT -> {
                 // clear entry
                 input.clear()
                 state = State.FIRST_FROZEN
             }
+
             State.SECOND_EDIT -> {
                 // clear entry
                 input.clear()
@@ -174,13 +181,16 @@ class Calculator {
                 first = -input.toDouble()
                 state = State.FIRST_FROZEN
             }
+
             State.SECOND_EDIT -> {
                 second = -input.toDouble()
                 state = State.SECOND_FROZEN
             }
+
             State.FIRST_FROZEN -> {
                 first = -first
             }
+
             State.SECOND_FROZEN -> {
                 second = -second
             }
@@ -193,13 +203,16 @@ class Calculator {
                 first = sqrt(input.toDouble())
                 state = State.FIRST_FROZEN
             }
+
             State.SECOND_EDIT -> {
                 second = sqrt(input.toDouble())
                 state = State.SECOND_FROZEN
             }
+
             State.FIRST_FROZEN -> {
                 first = sqrt(first)
             }
+
             State.SECOND_FROZEN -> {
                 second = sqrt(second)
             }
@@ -249,6 +262,7 @@ class Calculator {
                     else -> operator.calculate(first, second)
                 }
             }
+
             State.SECOND_EDIT -> {
                 constant = if (operator == Operator.MULTIPLY) first else input.toDouble()
 
@@ -257,6 +271,7 @@ class Calculator {
                     else -> operator.calculate(first, input.toDouble())
                 }
             }
+
             State.FIRST_FROZEN -> {
                 if (operator == Operator.NONE) {
                     first
@@ -266,6 +281,7 @@ class Calculator {
                     throw IllegalStateException("cannot have operator and no constant")
                 }
             }
+
             State.FIRST_EDIT -> {
                 if (operator == Operator.NONE) {
                     input.toDouble()
@@ -292,6 +308,7 @@ class Calculator {
                 first = input.toDouble()
                 first
             }
+
             State.SECOND_EDIT -> {
                 state = State.SECOND_FROZEN
                 second = input.toDouble()
@@ -311,6 +328,7 @@ class Calculator {
                 first = input.toDouble()
                 first
             }
+
             State.SECOND_EDIT -> {
                 state = State.SECOND_FROZEN
                 second = input.toDouble()
@@ -330,6 +348,7 @@ class Calculator {
                     first = memory!!
                     state = State.FIRST_FROZEN
                 }
+
                 State.SECOND_EDIT -> {
                     second = memory!!
                     state = State.SECOND_FROZEN
@@ -358,14 +377,17 @@ class Calculator {
                 second = first
                 state = State.SECOND_FROZEN
             }
+
             State.FIRST_EDIT -> {
                 first = input.toDouble()
                 second = first
                 state = State.SECOND_FROZEN
             }
+
             State.SECOND_FROZEN -> {
                 // change of mind from one operator to the next; no-op
             }
+
             State.SECOND_EDIT -> {
                 first = operator.calculate(first, input.toDouble())
                 second = first
@@ -377,10 +399,15 @@ class Calculator {
     }
 
     private fun displayDouble(d: Double): String {
-        return if (d == 0.0 || 1e-4 <= abs(d) && abs(d) < 1e12) {
-            DecimalFormat("#,###.#####").format(d)
-        } else if (d.isNaN()) {
+        val canDisplayRaw =
+            maxAllowedDigits == 0 ||
+                    d == 0.0 ||
+                    1e-4 <= abs(d) && abs(d) < 10.0.pow(maxAllowedDigits.toDouble())
+
+        return if (d.isNaN()) {
             "NaN" // TODO internationalise
+        } else if (canDisplayRaw) {
+            DecimalFormat("#,###.#####").format(d)
         } else {
             DecimalFormat("0.#####E0").format(d).lowercase()
         }
