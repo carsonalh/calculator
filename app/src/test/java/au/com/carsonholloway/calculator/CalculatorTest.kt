@@ -126,6 +126,18 @@ class CalculatorTest {
     }
 
     @Test
+    fun `does not compute reciprocal after negate`() {
+        calculator.enterSequence("9/3N=")
+        assertNumericEquivalent(-3.0, calculator.display)
+    }
+
+    @Test
+    fun `does not compute reciprocal after square root`() {
+        calculator.enterSequence("9/9Q=")
+        assertNumericEquivalent(3.0, calculator.display)
+    }
+
+    @Test
     fun `new equation does not show old values`() {
         calculator.enterSequence("1+2=5*")
         assertNumericEquivalent(5.0, calculator.display)

@@ -66,6 +66,7 @@ class Calculator {
             field = value
         }
 
+    private var isAfterUnary: Boolean = false
     private var first: Double = 0.0
     private var second: Double = 0.0
     private var constant: Double? = null
@@ -185,6 +186,7 @@ class Calculator {
             State.SECOND_EDIT -> {
                 second = -input.toDouble()
                 state = State.SECOND_FROZEN
+                isAfterUnary = true
             }
 
             State.FIRST_FROZEN -> {
@@ -193,6 +195,7 @@ class Calculator {
 
             State.SECOND_FROZEN -> {
                 second = -second
+                isAfterUnary = true
             }
         }
     }
@@ -207,6 +210,7 @@ class Calculator {
             State.SECOND_EDIT -> {
                 second = sqrt(input.toDouble())
                 state = State.SECOND_FROZEN
+                isAfterUnary = true
             }
 
             State.FIRST_FROZEN -> {
@@ -215,6 +219,7 @@ class Calculator {
 
             State.SECOND_FROZEN -> {
                 second = sqrt(second)
+                isAfterUnary = true
             }
         }
     }
@@ -258,7 +263,13 @@ class Calculator {
 
                 when (operator) {
                     Operator.NONE -> throw IllegalStateException("operator must be set on second")
-                    Operator.DIVIDE -> operator.calculate(1.0, first)
+                    Operator.DIVIDE -> {
+                        if (isAfterUnary) {
+                            operator.calculate(first, second)
+                        } else {
+                            operator.calculate(1.0, first)
+                        }
+                    }
                     else -> operator.calculate(first, second)
                 }
             }
@@ -294,6 +305,7 @@ class Calculator {
         }
 
         input.clear()
+        isAfterUnary = false
         state = State.FIRST_FROZEN
 
         logRegisters("eq")
